@@ -10,7 +10,6 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
-from datetime import datetime
 
 
 class HBNBCommand(cmd.Cmd):
@@ -127,7 +126,7 @@ class HBNBCommand(cmd.Cmd):
         # create State name="California"
         # create User email=1.1 pwassword="aasdasd"
 
-        args_dict = {'updated_at':datetime.now()}
+        args_dict = {}
         for attribute in args_list[1:]:
             if '=' in attribute:
                 attr_list = attribute.split("=")
