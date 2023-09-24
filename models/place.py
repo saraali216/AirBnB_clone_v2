@@ -3,12 +3,11 @@
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, Integer, String, ForeignKey, Float, Table
 from sqlalchemy.orm import relationship
-from models import storage
 from os import getenv
 from models.amenity import Amenity
 from models.review import Review
 
-
+# Define the place_amenity Table first (to avoid circular import issues)
 place_amenity = Table('place_amenity', Base.metadata,
                       Column('place_id', String(60),
                              ForeignKey('places.id'),
@@ -17,7 +16,6 @@ place_amenity = Table('place_amenity', Base.metadata,
                              ForeignKey('amenities.id'),
                              primary_key=True, nullable=False)
                       )
-
 
 class Place(BaseModel, Base):
     """A place to stay."""
@@ -32,7 +30,13 @@ class Place(BaseModel, Base):
     price_by_night = Column(Integer, nullable=False, default=0)
     latitude = Column(Float)
     longitude = Column(Float)
-    amenity_ids = []
+
+    # Define relationships with other classes
+    reviews = relationship('Review', backref='place', cascade='delete')
+
+    # Define the amenities relationship using the place_amenity Table
+    amenities = relationship("Amenity", secondary="place_amenity",
+                             viewonly=False, overlaps="place_amenities")
 
     if getenv('HBNB_TYPE_STORAGE') != 'db':
         @property
@@ -58,8 +62,3 @@ class Place(BaseModel, Base):
             """set linked Amenities"""
             if isinstance(amenity, Amenity):
                 self.amenity_ids.append(amenity.id)
-
-    amenity_ids = []
-    reviews = relationship('Review', backref='place', cascade='delete')
-    amenities = relationship("Amenity", secondary="place_amenity",
-                             viewonly=False, overlaps="place_amenities")
